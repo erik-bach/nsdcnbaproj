@@ -2,6 +2,8 @@ import requests
 from bs4 import BeautifulSoup
 import csv
 import os
+from geopy import Nominatim
+
 
 url = 'https://geojango.com/pages/list-of-nba-teams'
 response = requests.get(url)
@@ -11,6 +13,16 @@ soup = BeautifulSoup(response.content, 'html.parser')
 data_list = []
 
 table_body = soup.find('tbody')  # Find the <tbody> element containing the data rows
+
+
+def get_coordinates(city, state):
+    geolocator = Nominatim(user_agent="my_geocoder")
+    location = geolocator.geocode(f"{city}, {state}")
+    if location:
+        return location.latitude, location.longitude
+    else:
+        return None, None
+
 
 for row in table_body.find_all('tr', class_='shogun-table-row-container'):  # Find all rows
     data = {}
@@ -26,19 +38,35 @@ for row in table_body.find_all('tr', class_='shogun-table-row-container'):  # Fi
         data['opening year'] = columns[4].find('span').text.strip() if columns[4].find('span') else ''
         data_list.append(data)
 
+
+for data in data_list:
+    city, state = data['location'].split(', ')
+    latitude, longitude = get_coordinates(city, state)
+    data['latitude'] = latitude
+    data['longitude'] = longitude
+
+
 current_directory = os.getcwd()
 
 # Define the path to the raw data folder and the CSV file
-raw_folder_path = os.path.join(current_directory, 'data', 'raw')
-file_path = os.path.join(raw_folder_path, 'nba_teams.csv')
+project_folder = os.path.join(current_directory, 'data')
+raw_folder = os.path.join(project_folder, 'raw')
 
 # Create the raw data folder if it doesn't exist
-if not os.path.exists(raw_folder_path):
-    os.makedirs(raw_folder_path)
+if not os.path.exists(raw_folder):
+    os.makedirs(raw_folder)
+
+# Construct the path to the CSV file
+file_path = os.path.join(raw_folder, 'nba_teams.csv')
+
+
+# Create the raw data folder if it doesn't exist
+if not os.path.exists(file_path):
+    os.makedirs(file_path)
 
 # Write data to the CSV file
 with open(file_path, 'w', newline='', encoding='utf-8') as csvfile:
-    fieldnames = ['name', 'arena', 'location', 'seating capacity', 'opening year']
+    fieldnames = ['name', 'arena', 'location', 'seating capacity', 'opening year', 'latitude', 'longitude']
     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
     writer.writeheader()  # Write the header row
