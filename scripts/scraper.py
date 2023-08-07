@@ -24,19 +24,17 @@ for row in table_body.find_all('tr', class_='shogun-table-row-container'):  # Fi
         data['location'] = columns[2].find('span').text.strip() if columns[2].find('span') else ''
         data['seating capacity'] = columns[3].find('span').text.strip() if columns[3].find('span') else ''
         data['opening year'] = columns[4].find('span').text.strip() if columns[4].find('span') else ''
-
         data_list.append(data)
 
-script_directory = os.path.dirname(os.path.abspath(__file__))
-parent_directory = os.path.dirname(script_directory)
+current_directory = os.getcwd()
 
-# Define the path to the data folder and the CSV file
-folder_path = os.path.join(parent_directory, '../data')
-file_path = os.path.join(folder_path, 'nba_teams.csv')
+# Define the path to the raw data folder and the CSV file
+raw_folder_path = os.path.join(current_directory, 'data', 'raw')
+file_path = os.path.join(raw_folder_path, 'nba_teams.csv')
 
-# Create the data folder if it doesn't exist
-if not os.path.exists(folder_path):
-    os.makedirs(folder_path)
+# Create the raw data folder if it doesn't exist
+if not os.path.exists(raw_folder_path):
+    os.makedirs(raw_folder_path)
 
 # Write data to the CSV file
 with open(file_path, 'w', newline='', encoding='utf-8') as csvfile:
