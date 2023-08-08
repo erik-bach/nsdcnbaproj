@@ -46,10 +46,11 @@ for data in data_list:
     data['longitude'] = longitude
 
 
+# Get the current working directory
 current_directory = os.getcwd()
 
 # Define the path to the raw data folder and the CSV file
-project_folder = os.path.join(current_directory, 'data')
+project_folder = os.path.join(current_directory, '../data')
 raw_folder = os.path.join(project_folder, 'raw')
 
 # Create the raw data folder if it doesn't exist
@@ -58,11 +59,6 @@ if not os.path.exists(raw_folder):
 
 # Construct the path to the CSV file
 file_path = os.path.join(raw_folder, 'nba_teams.csv')
-
-
-# Create the raw data folder if it doesn't exist
-if not os.path.exists(file_path):
-    os.makedirs(file_path)
 
 # Write data to the CSV file
 with open(file_path, 'w', newline='', encoding='utf-8') as csvfile:
